@@ -81,6 +81,8 @@ ggplot(mapping = aes(fill=usuarios, x = country, y = PDI)) +
     labs(x="Países", y="Índice de Hierarquia na Relações", fill = "Usuários")
 
 ```
+
+
 #### Visualizando a quantidade de usuários e a hierarquia de todos os países em um gráfico de barras
 
 Menos eficiente pois não está ordenado e dificulta a comparação. Mas em comparação com a visualização anterior já fica mais fácil de visualizar qual paíse tem maior quantidade de uauários.
@@ -94,6 +96,8 @@ ggplot(mapping = aes(fill=PDI, x = country, y = usuarios)) +
 
 ```
 
+
+
 #### Visualizando a hierarquia e a participação dos países em um gráfico de barras
 
 Menos eficiente pois não esta ordenado e dificulta a comparação.
@@ -106,6 +110,8 @@ ggplot(mapping = aes(fill=comentaram_prop, x = country, y = PDI)) +
     labs(x="Países", y="Índice de Hierarquia na Relações", fill = "Comentários")
 
 ```
+
+
 #### Visualizando Usuários, Comentários e Acesso a Internet
 
 Menos eficiente pois os atributos escolhidos para os canais deixam os itens mais sobrepostos visto que tem valores semelhantes.
