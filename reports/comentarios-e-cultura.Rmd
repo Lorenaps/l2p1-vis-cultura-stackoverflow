@@ -1,5 +1,5 @@
 ---
-title: "Comentários e cultura"
+title: "L2P1: Explorando marcas e canais - Lorena Pereira"
 output:
     html_document:
     df_print: paged
@@ -32,50 +32,110 @@ dados = read_csv(
     )
 ) %>% 
     filter(usuarios > 200)
-```
-# Relação entre Participação dos usuários X Acesso a Internet X Base de usuários X Relações hierárquicas no país
-Estamos interessados na relação entre quanto as pessoas de diferentes países comentam em questões dos outros. A proporção das pessoas do país que comentou nas questões de outros está medido na variável `comentaram_prop`. 
 
-Considerando essa variável, queremos examinar a relação entre ela e o quão hierárquicas são as relações em um país (`PDI`). Queremos também levar em conta o quanto as pessoas daquele país têm acesso à Internet (`Internet`) e qual o tamanho da base de dados que detectamos daquele país (`usuarios`). 
+dados_filtrados <- dados %>%
+    select(six_regions, country, site, usuarios, comentaram_prop, PDI, Internet) %>%
+    filter(!is.na(Internet)) %>%
+    filter(!is.na(six_regions))
+
+```
+## Quanto as pessoas de diferentes países comentam em questões de sites Q&A
+
+Sites Q&A - Question & Answer (Perguntas e respostas) são aqueles sites onde vários usuários podem interagir tirando suas dúvidas sobre assuntos diversos. Partindo de uma base de dados com observações para os sites Stack Overflow e Super User buscamos entender melhor esse contexto.
+Aqui vamos analisar a participação via comentários de pessoa de diferentes países e examinar a relação entre a quantidade de comentários e outras variáveis listadas a seguir:
+- Quão hierárquicas são as relações em um país;
+- Quanto as pessoas tem acesso a Internet e
+- Quantidade de usuários naquela região. 
+
+Para isso construímos o seguinte gráfico:
 
 ```{r}
 dados_filtrados %>%
 ggplot(mapping = aes(x = Internet, y = PDI)) +
-    geom_jitter(aes(size = usuarios, color = comentaram_prop)) + 
-    facet_grid(~ site)
+    geom_jitter(aes(size = usuarios, alpha=.1, color = comentaram_prop)) + 
+    facet_grid(~ site) +
+    ggtitle("Relação entre variávies culturais e sociais de diferentes países", 
+            subtitle="Entre os sites Stack Overflow e Super User") + 
+    labs(x="Acesso a Internet", y="Índice de Hierarquia nas Relações", 
+     colour = "Comentários", size = "Usuários") + 
+    guides(alpha = FALSE)
 ```
 
-#Visualizações menos eficazes
+É possivel notar que existe uma relação positiva entre os países que mais fazem comentários e a quantidade de acesso a Internet que possuem, bem como que nesses países o índice que hierarquia, na maioria das vezes, fica abaixo de 50 (Olhando os dados brutos podemos ver que esse índice varia de 11 a 104 dentre os 115 países da amostra analisada), indicando que esses países que mais comentam nos sites apresentam um baixo índice de hierarquia nas relações.
 
+Com relação a quantidade de usuários podemos observar que o Stack Overflow apresenta mais exemplos de países que possuem mais usuários e que a maioria possuem acesso a Internet entre 75 e 100 e costumam comentar acima de 0,3 (numa escala de 0,1 e 0,4).
+
+## Visualizações menos eficazes
 Em seguida, faça 5 visualizações que usem as mesmas variáveis e também pontos, mas que sejam **menos eficazes** que a que você escolheu acima. 
 
+#### Visualizando a hierarquia e a quantidade de usuários de todos os países em um gráfico de barras
+
+Menos eficiente pois não esta ordenado e dificulta a comparação entre os países embora use o canal mais eficiente que é o de posições em uma escala comum. 
+Essa visualização também só traz duas das variáveis solicitadas e por uma limitação da largura do gráfico os nomes dos países ficam bem próximos.
+
 ```{r}
-ggplot(data = dados_filtrados, mapping = aes(fill=usuarios, x = country, y = PDI)) +
-    geom_bar(position="dodge", stat="identity")
+dados_filtrados %>% filter(site == "StackOverflow") %>%
+ggplot(mapping = aes(fill=usuarios, x = country, y = PDI)) +
+    geom_bar(position="dodge", stat="identity") +
+    theme(axis.text.x = element_text(angle = 90)) +
+    labs(x="Países", y="Índice de Hierarquia na Relações", fill = "Usuários")
+
+```
+#### Visualizando a quantidade de usuários e a hierarquia de todos os países em um gráfico de barras
+
+Menos eficiente pois não está ordenado e dificulta a comparação. Mas em comparação com a visualização anterior já fica mais fácil de visualizar qual paíse tem maior quantidade de uauários.
+
+```{r}
+dados_filtrados %>% filter(site == "StackOverflow") %>%
+ggplot(mapping = aes(fill=PDI, x = country, y = usuarios)) +
+    geom_bar(position="dodge", stat="identity") +
+    theme(axis.text.x = element_text(angle = 90)) +
+    labs(x="Países", y="Úsuários", fill = "Hierarquia")
 
 ```
 
+#### Visualizando a hierarquia e a participação dos países em um gráfico de barras
+
+Menos eficiente pois não esta ordenado e dificulta a comparação.
+
+```{r}
+dados_filtrados %>% filter(site == "StackOverflow") %>%
+ggplot(mapping = aes(fill=comentaram_prop, x = country, y = PDI)) +
+    geom_bar(position="dodge", stat="identity") +
+    theme(axis.text.x = element_text(angle = 90)) +
+    labs(x="Países", y="Índice de Hierarquia na Relações", fill = "Comentários")
+
+```
+#### Visualizando Usuários, Comentários e Acesso a Internet
+
+Menos eficiente pois os atributos escolhidos para os canais deixam os itens mais sobrepostos visto que tem valores semelhantes.
+
+```{r}
+
+dados_filtrados %>% filter(site == "StackOverflow") %>%
+ggplot(mapping = aes(x = comentaram_prop, y = usuarios)) +
+    geom_jitter(aes(size = Internet)) + 
+    labs(x="Comentários", y="Usuários", size = "Internet")
+
+```
 
 ## Incluindo o continente dos países
 
-```{r}
-dados_filtrados %>%
-ggplot(mapping = aes(x = comentaram_prop, y = PDI)) +
-    geom_jitter(aes(size = usuarios, alpha=.02, color= six_regions)) + 
-    facet_grid(~ site)
+Na visualização abaixo podemos observar as relações entre as variáveis citadas anteriormente com os países agrupados por continentes. Consideramos apenas o site Stack Overflow por ter maior quantidade de usuários.
+Desse forma é possível ver que a Europa e Ásia central tem uma maior quantidade de países que participam desses sites
+enquanto a África subsaariana apresenta o menor número de países participantes.
 
-```
 
 ```{r}
-dados_filtrados %>%
-ggplot(mapping = aes(x = comentaram_prop, y = Internet)) +
-    geom_jitter(aes(size = usuarios, alpha=.02, color= six_regions)) + 
-    facet_grid(~ site)
-```
-```{r}
-dados_filtrados %>%
+dados_filtrados %>% filter(site == "StackOverflow") %>%
 ggplot(mapping = aes(x = Internet, y = PDI)) +
-    geom_jitter(aes(size = usuarios, color = comentaram_prop, shape = site)) + 
-    facet_grid(~ six_regions)
+    geom_jitter(aes(size = usuarios, alpha = 0.2, color = comentaram_prop)) + 
+    ggtitle("Relação entre variávies culturais e sociais de diferentes países", 
+            subtitle="Dados agrupados por continente") + 
+    labs(x="Acesso a Internet", y="Índice de Hierarquia na Relações", 
+         colour = "Comentários", size = "Usuários") +
+    facet_wrap(~ six_regions, ncol(2)) + 
+    guides(alpha = FALSE)
+
 ```
 
